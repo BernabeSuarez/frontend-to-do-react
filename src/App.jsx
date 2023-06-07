@@ -1,10 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import "./App.css";
 
 function App() {
   const [itemText, setItemText] = useState("");
+  const [itemList, setItemList] = useState([]);
+  const [isUpdating, setIsUpdating] = useState("");
+  const [updateItemText, setUpdateItemText] = useState("");
 
+  // funcion para Agregar Items a la lista
   const addItem = async (e) => {
     e.preventDefault();
     try {
@@ -15,8 +19,78 @@ function App() {
           completed: false,
         }
       );
-      console.log(res);
+      setItemList((prev) => [...prev, res.data]);
       setItemText("");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // funcion para obtener los items dfe la lista -- usando useEffect
+
+  useEffect(() => {
+    const getItems = async () => {
+      try {
+        const res = await axios.get(
+          "https://backend-to-do-react.vercel.app/api/items"
+        );
+        setItemList(res.data);
+        console.log("renderizando");
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    getItems();
+  }, []);
+
+  //Editar los items
+  const editItem = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await axios.put(
+        `https://backend-to-do-react.vercel.app/api/item/${updateItemText}`,
+        {
+          item: updateItemText,
+          completed: false,
+        }
+      );
+      console.log(res.data);
+      const updateItemIndex = itemList.findIndex(
+        (item) => item._id === isUpdating
+      );
+      const updateItem = (itemList[updateItemIndex].item = updateItemText);
+      setUpdateItemText("");
+      setIsUpdating("");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  // mostrar el formulario para actualizar el item
+
+  const renderUpdateForm = () => (
+    <form
+      onSubmit={(e) => {
+        editItem(e);
+      }}
+    >
+      <input
+        type="text"
+        placeholder="Actualizar Item"
+        onChange={(e) => setUpdateItemText(e.target.value)}
+        value={updateItemText}
+      />
+      <button type="submit">Actualizar</button>
+    </form>
+  );
+
+  //Borrar un item
+  const deleteItem = async (id) => {
+    try {
+      const res = await axios.delete(
+        `https://backend-to-do-react.vercel.app/api/item/${id}`
+      );
+      const newListItems = itemList.filter((item) => item._id !== id);
+      setItemList(newListItems);
     } catch (error) {
       console.log(error);
     }
@@ -37,11 +111,33 @@ function App() {
           <button type="submit">Agregar</button>
         </form>
         <div className="todo-listItem">
-          <div className="todo-item">
-            <p className="item-content">Aca se renderizan los items</p>
-            <button className="update-item">Editar</button>
-            <button className="delete-item">Borrar</button>
-          </div>
+          {itemList.map((item) => (
+            <div className="todo-item" key={item._id}>
+              {isUpdating === item._id ? (
+                renderUpdateForm()
+              ) : (
+                <>
+                  <p className="item-content">{item.item}</p>
+                  <button
+                    className="update-item"
+                    onClick={() => {
+                      setIsUpdating(item._id);
+                    }}
+                  >
+                    Editar
+                  </button>
+                  <button
+                    className="delete-item"
+                    onClick={() => {
+                      deleteItem(item._id);
+                    }}
+                  >
+                    Borrar
+                  </button>
+                </>
+              )}
+            </div>
+          ))}
         </div>
       </div>
     </>
