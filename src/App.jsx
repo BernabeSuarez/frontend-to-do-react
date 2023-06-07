@@ -3,6 +3,7 @@ import axios from "axios";
 import "./App.css";
 
 function App() {
+  const [loader, setLoader] = useState(true);
   const [itemText, setItemText] = useState("");
   const [itemList, setItemList] = useState([]);
   const [isUpdating, setIsUpdating] = useState("");
@@ -26,6 +27,9 @@ function App() {
     }
   };
 
+  setTimeout(() => {
+    setLoader(false);
+  }, 3000);
   // funcion para obtener los items dfe la lista -- usando useEffect
 
   useEffect(() => {
@@ -95,52 +99,58 @@ function App() {
       console.log(error);
     }
   };
+  if (loader) {
+    return <img src="./Loading-bar.gif" alt="Loader" width={120} />;
+  }
+
   return (
-    <>
-      <div className="app">
+    <div className="app">
+      <div className="title">
+        <img src="./mern.png" alt="mern stack" />
         <h1>ToDo List</h1>
-        <form onSubmit={(e) => addItem(e)}>
-          <input
-            type="text"
-            placeholder="Agregar items a la lista"
-            onChange={(e) => {
-              setItemText(e.target.value);
-            }}
-            value={itemText}
-          />
-          <button type="submit">Agregar</button>
-        </form>
-        <div className="todo-listItem">
-          {itemList.map((item) => (
-            <div className="todo-item" key={item._id}>
-              {isUpdating === item._id ? (
-                renderUpdateForm()
-              ) : (
-                <>
-                  <p className="item-content">{item.item}</p>
-                  <button
-                    className="update-item"
-                    onClick={() => {
-                      setIsUpdating(item._id);
-                    }}
-                  >
-                    Editar
-                  </button>
-                  <button
-                    className="delete-item"
-                    onClick={() => {
-                      deleteItem(item._id);
-                    }}
-                  >
-                    Borrar
-                  </button>
-                </>
-              )}
-            </div>
-          ))}
-        </div>
       </div>
-    </>
+
+      <form onSubmit={(e) => addItem(e)}>
+        <input
+          type="text"
+          placeholder="Agregar items a la lista"
+          onChange={(e) => {
+            setItemText(e.target.value);
+          }}
+          value={itemText}
+        />
+        <button type="submit">Agregar</button>
+      </form>
+      <div className="todo-listItem">
+        {itemList.map((item) => (
+          <div className="todo-item" key={item._id}>
+            {isUpdating === item._id ? (
+              renderUpdateForm()
+            ) : (
+              <>
+                <p className="item-content">{item.item}</p>
+                <button
+                  className="update-item"
+                  onClick={() => {
+                    setIsUpdating(item._id);
+                  }}
+                >
+                  Editar
+                </button>
+                <button
+                  className="delete-item"
+                  onClick={() => {
+                    deleteItem(item._id);
+                  }}
+                >
+                  Borrar
+                </button>
+              </>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 

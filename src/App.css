@@ -15,11 +15,21 @@
   padding: 10px;
   border-radius: 8px;
 }
-
-.app h1 {
-  text-align: center;
+.title {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 5%;
+}
+.title h1 {
+  font-size: 2rem;
   color: black;
 }
+.title img {
+  width: 80px;
+  margin-right: 20px;
+}
+
 form {
   display: flex;
   justify-content: space-between;
